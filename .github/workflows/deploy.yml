@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Build and Deploy Angular to EC2
 
 on:
   push:
@@ -6,22 +6,37 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Create directory on EC2 instance
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'  # Puedes cambiar la versión de Node.js si es necesario
+
+    - name: Install Angular dependencies
+      run: |
+        npm install -g @angular/cli
+        npm install
+
+    - name: Build Angular project
+      run: |
+        ng build --prod  # Comando para compilar el proyecto Angular para producción
+
+    - name: Set up SSH and copy build to EC2
       run: |
         echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/vockey.pem
         chmod 600 /tmp/vockey.pem
+
+        # Crear carpeta en la instancia EC2
         ssh -o StrictHostKeyChecking=no -i /tmp/vockey.pem ubuntu@ec2-18-206-88-149.compute-1.amazonaws.com << 'EOF'
           mkdir -p ~/pruebaFront
           exit
         EOF
 
-    - name: Copy test.txt to EC2 instance
-      run: |
-        scp -o StrictHostKeyChecking=no -i /tmp/vockey.pem ./test.txt ubuntu@ec2-18-206-88-149.compute-1.amazonaws.com:~/pruebaFront/test.txt
+        # Copiar archivos compilados a la instancia EC2
+        scp -o StrictHostKeyChecking=no -i /tmp/vockey.pem -r ./dist/Front/* ubuntu@ec2-18-206-88-149.compute-1.amazonaws.com:~/pruebaFront/
