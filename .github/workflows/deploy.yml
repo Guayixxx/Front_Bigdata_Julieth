@@ -13,18 +13,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.5.4
-      with:
-        ssh-private-key: ${{ secrets.EC2_SSH_KEY }} # Usa el nombre que le diste al secreto
-
     - name: Create directory on EC2 instance
       run: |
-        ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} ubuntu@ec2-18-206-88-149.compute-1.amazonaws.com << 'EOF'
+        echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/vockey.pem
+        chmod 600 /tmp/vockey.pem
+        ssh -o StrictHostKeyChecking=no -i /tmp/vockey.pem ubuntu@ec2-18-206-88-149.compute-1.amazonaws.com << 'EOF'
           mkdir -p ~/pruebaFront
           exit
         EOF
 
     - name: Copy test.txt to EC2 instance
       run: |
-        scp -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} ./test.txt ubuntu@ec2-18-206-88-149.compute-1.amazonaws.com:~/pruebaFront/test.txt
+        scp -o StrictHostKeyChecking=no -i /tmp/vockey.pem ./test.txt ubuntu@ec2-18-206-88-149.compute-1.amazonaws.com:~/pruebaFront/test.txt
