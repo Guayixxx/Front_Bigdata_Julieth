@@ -25,18 +25,15 @@ jobs:
 
     - name: Build Angular project
       run: |
-        ng build --configuration production  # Comando actualizado para compilar el proyecto Angular en producción
+        ng build --configuration production
+
+    - name: List files in dist
+      run: ls -R ./dist
 
     - name: Set up SSH and copy build to EC2
       run: |
         echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/vockey.pem
         chmod 600 /tmp/vockey.pem
-
-        # Crear carpeta en la instancia EC2
-        ssh -o StrictHostKeyChecking=no -i /tmp/vockey.pem ubuntu@ec2-18-206-88-149.compute-1.amazonaws.com << 'EOF'
-          mkdir -p ~/pruebaFront
-          exit
-        EOF
 
         # Copiar archivos compilados a la instancia EC2
         scp -o StrictHostKeyChecking=no -i /tmp/vockey.pem -r ./dist/Front/* ubuntu@ec2-18-206-88-149.compute-1.amazonaws.com:~/pruebaFront/
