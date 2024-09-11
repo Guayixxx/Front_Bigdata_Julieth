@@ -25,7 +25,7 @@ jobs:
 
     - name: Build Angular project
       run: |
-        ng build --prod  # Comando para compilar el proyecto Angular para producción
+        ng build --configuration production  # Comando actualizado para compilar el proyecto Angular en producción
 
     - name: Set up SSH and copy build to EC2
       run: |
