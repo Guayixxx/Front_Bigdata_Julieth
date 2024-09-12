@@ -16,7 +16,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '20'  # Puedes cambiar la versión de Node.js si es necesario
+        node-version: '20'
 
     - name: Install Angular dependencies
       run: |
@@ -35,5 +35,6 @@ jobs:
         echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/vockey.pem
         chmod 600 /tmp/vockey.pem
 
-        # Copiar archivos compilados a la instancia EC2
-        scp -o StrictHostKeyChecking=no -i /tmp/vockey.pem -r ./dist/front/* ubuntu@ec2-34-201-43-138.compute-1.amazonaws.com:/var/www/html/
+        # Copiar archivos compilados a la instancia EC2 con sudo
+        scp -o StrictHostKeyChecking=no -i /tmp/vockey.pem -r ./dist/front/* ubuntu@ec2-34-201-43-138.compute-1.amazonaws.com:/tmp/
+        ssh -o StrictHostKeyChecking=no -i /tmp/vockey.pem ubuntu@ec2-34-201-43-138.compute-1.amazonaws.com "sudo cp -r /tmp/* /var/www/html/"
