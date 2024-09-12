@@ -36,5 +36,5 @@ jobs:
         chmod 600 /tmp/vockey.pem
 
         # Copiar archivos compilados a la instancia EC2 con sudo
-        scp -o StrictHostKeyChecking=no -i /tmp/vockey.pem -r ./dist/front/* ubuntu@ec2-34-201-43-138.compute-1.amazonaws.com:/tmp/
-        ssh -o StrictHostKeyChecking=no -i /tmp/vockey.pem ubuntu@ec2-34-201-43-138.compute-1.amazonaws.com "sudo cp -r /tmp/* /var/www/html/"
+        scp -o StrictHostKeyChecking=no -i /tmp/vockey.pem -r ./dist/front/* ubuntu@${{ secrets.EC2_DNS }}:/tmp/
+        ssh -o StrictHostKeyChecking=no -i /tmp/vockey.pem ubuntu@${{ secrets.EC2_DNS }} "sudo cp -r /tmp/* /var/www/html/"
