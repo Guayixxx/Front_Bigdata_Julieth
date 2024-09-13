@@ -1,35 +1,64 @@
-import { Component, AfterViewInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.sass'
+  styleUrls: ['./app.component.sass'],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,  // Importa ReactiveFormsModule directamente
+    HttpClientModule      // Importa HttpClientModule directamente
+  ]
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent {
   title = 'Front';
+  signupForm: FormGroup;
 
-  ngAfterViewInit(): void {
-    // Obtener los elementos del DOM
-    const signupButton = document.getElementById('signup-button') as HTMLButtonElement;
-    const loginButton = document.getElementById('login-button') as HTMLButtonElement;
-    const userForms = document.getElementById('user_options-forms') as HTMLElement;
+  constructor(private fb: FormBuilder, private http: HttpClient) {
+    // Inicializa el formulario con validaciones
+    this.signupForm = this.fb.group({
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      dob: ['', Validators.required],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+  }
 
-    // Verificar que los elementos existan antes de agregar eventos
-    if (signupButton && loginButton && userForms) {
-      // Agregar event listener al botón de "Sign Up"
-      signupButton.addEventListener('click', () => {
-        userForms.classList.remove('bounceRight');
-        userForms.classList.add('bounceLeft');
-      }, false);
+  onSubmit() {
+    if (this.signupForm.valid) {
+      // Obtener los valores del formulario
+      const formData = this.signupForm.value;
 
-      // Agregar event listener al botón de "Login"
-      loginButton.addEventListener('click', () => {
-        userForms.classList.remove('bounceLeft');
-        userForms.classList.add('bounceRight');
-      }, false);
+      // Asegurarnos de que la fecha esté en formato yyyy-mm-dd
+      const birthDate = new Date(formData.dob);
+      const formattedDate = birthDate.toISOString().split('T')[0];  // Extraemos la parte de yyyy-mm-dd
+
+      // Formateamos los datos según lo que espera el backend
+      const requestData = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        birth_date: formattedDate,
+        password: formData.password
+      };
+
+      // Mostrar el objeto JSON en consola
+      console.log('Datos que se enviarán al backend:', requestData);
+
+      // Hacer la petición POST al backend
+      this.http.post('http://98.82.38.210:5000/register', requestData).subscribe(
+        response => {
+          console.log('Registro exitoso', response);
+        },
+        error => {
+          console.error('Error al registrar', error);
+        }
+      );
+    } else {
+      console.log('El formulario no es válido');
     }
   }
 }
