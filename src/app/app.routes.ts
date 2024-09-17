@@ -3,7 +3,16 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
     {
         path: '',
-        redirectTo: 'app',
+        redirectTo: 'login',
         pathMatch: 'full'
+    },
+    {
+        path: 'login',
+        loadComponent: () => import('./components/login/login.component').then((m)=>m.LoginComponent),
+    },
+    {
+        path: 'users',
+        loadComponent: () => import('./components/user-list/user-list.component').then((m)=>m.UserListComponent),
+        
     }
 ];
